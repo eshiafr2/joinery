@@ -2190,6 +2190,31 @@ implements Iterable<List<V>> {
     }
 
     /**
+     * Write the data from this data frame to
+     * the specified file as separated values indicated with separator
+     *
+     * @param file the file to write
+     * @param separator separates the data
+     * @throws IOException if an error occurs writing the file
+     */
+    public final void writeCsv(final String file, final String separator)
+    throws IOException {
+        Serialization.writeCsv(this, new FileOutputStream(file), separator);
+    }
+
+    /**
+     * Write the data from this data frame to
+     * the provided output stream as separated values indicated with separator
+     *
+     * @param output
+     * @throws IOException
+     */
+    public final void writeCsv(final OutputStream output, final String separator)
+    throws IOException {
+        Serialization.writeCsv(this, output, separator);
+    }
+
+    /**
      * Read data from the specified excel
      * workbook into a new data frame.
      *

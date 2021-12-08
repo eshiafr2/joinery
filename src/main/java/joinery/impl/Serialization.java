@@ -295,7 +295,37 @@ public class Serialization {
         writeCsv(df, new FileOutputStream(output));
     }
 
+    public static <V> void writeCsv(final DataFrame<V> df, final String output, final String separator)
+    throws IOException {
+        writeCsv(df, new FileOutputStream(output), separator);
+    }
+
     public static <V> void writeCsv(final DataFrame<V> df, final OutputStream output)
+    throws IOException {
+        try (CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(output), CsvPreference.STANDARD_PREFERENCE)) {
+            final String[] header = new String[df.size()];
+            final Iterator<Object> it = df.columns().iterator();
+            for (int c = 0; c < df.size(); c++) {
+                header[c] = String.valueOf(it.hasNext() ? it.next() : c);
+            }
+            writer.writeHeader(header);
+            final CellProcessor[] procs = new CellProcessor[df.size()];
+            final List<Class<?>> types = df.types();
+            for (int c = 0; c < df.size(); c++) {
+                final Class<?> cls = types.get(c);
+                if (Date.class.isAssignableFrom(cls)) {
+                    procs[c] = new ConvertNullTo("", new FmtDate("yyyy-MM-dd'T'HH:mm:ssXXX"));
+                } else {
+                    procs[c] = new ConvertNullTo("");
+                }
+            }
+            for (final List<V> row : df) {
+                writer.write(row, procs);
+            }
+        }
+    }
+
+    public static <V> void writeCsv(final DataFrame<V> df, final OutputStream output, final String separator)
     throws IOException {
         try (CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(output), CsvPreference.STANDARD_PREFERENCE)) {
             final String[] header = new String[df.size()];
